@@ -15,3 +15,7 @@ Firefox OSのアプリ開発を学習するために頑張る
 2. OAuth認証クライアントを書く←いまここ
 3. WebAPIを叩く
 4. UIを書く
+
+Wiki
+========
+[HOME](https://github.com/kouheiszk/app-fxos/wiki)
