@@ -1,3 +1,0 @@
-[submodule "js/lib/jsOAuth"]
-	path = js/lib/jsOAuth
-    url = https://github.com/kouheiszk/jsOAuth.git

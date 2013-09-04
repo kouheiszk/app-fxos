@@ -3,43 +3,35 @@
     'use strict';
 
     var config = new Config();
-    var oauth = new OAuth(config.oauth);
 
-    oauth.fetchRequestToken(openAuthoriseWindow, failureHandler);
+    var authorize = function(state) {
+        var paramState = state || "";
 
-    function openAuthoriseWindow(url)
-    {
-        alert('success');
+        // requestTokenUrl
+        var action = config.oauth.authorizationUrl;
 
-        var wnd = window.open(url, 'authorise');
-        setTimeout(waitForPin, 100);
+        // parameters
+        var parameters = [
+            ["client_id", config.oauth.consumerKey],
+            ["response_type", "code"],
+            ["scope", "r_profile"],
+            ["state", paramState]
+        ];
 
-        function waitForPin()
-        {
-            if (wnd.closed)
-            {
-                var pin = prompt("Please enter your PIN", "");
-                oauth.setVerifier(pin);
-                oauth.fetchAccessToken(getSomeData, failureHandler);
-            }
-            else
-            {
-                setTimeout(waitForPin, 100);
-            }
-        }
-    }
+        var message = {
+            method     : "GET",
+            action     : action,
+            parameters : parameters
+        };
 
-    function getSomeData()
-    {
-        oauth.get("https://api.twitter.com/1.1/statuses/home_timeline.json", function (data) {
-            alert(data);
-        }, failureHandler);
-    }
+        // パラメータを含む URL の取得
+        var url = OAuth.addToURL(message.action, message.parameters);
+        location.href = url; // doesn't work
 
-    function failureHandler(data)
-    {
-        alert('failed');
+        // TODO
+        // open authorize on iframe
+        // watch iframe load event and get code param when change url to http://some.url/?code=****
+    };
 
-        console.error(data);
-    }
+    authorize();
 })();
