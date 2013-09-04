@@ -1,16 +1,16 @@
 (function(){
     'use strict';
 
-    if(!config) return;
+    if(!Config()) return;
 
-    console.log('config readed');
-
-    var oauth = new OAuth(config.oauth);
+    var oauth = new OAuth(Config().oauth);
 
     oauth.fetchRequestToken(openAuthoriseWindow, failureHandler);
 
     function openAuthoriseWindow(url)
     {
+    	alert('success');
+
         var wnd = window.open(url, 'authorise');
         setTimeout(waitForPin, 100);
 
@@ -37,6 +37,8 @@
 
     function failureHandler(data)
     {
+    	alert('failed');
+    	
         console.error(data);
     }
 })();
