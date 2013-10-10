@@ -1,37 +1,41 @@
 (function(){
-    /* global Config:false, OAuth:false */
+    /* global Config:false */
     'use strict';
 
     var config = new Config();
 
-    var authorize = function(state) {
-        var paramState = state || "";
+    var getAccessToken = function() {
+        var requestBody = "grant_type=authorization_code&client_id=" +
+                          config.oauth.consumerKey +
+                          "&client_secret=" +
+                          config.oauth.consumerSecret +
+                          "&code=" +
+                          config.oauth.code +
+                          "&redirect_uri=" +
+                          config.oauth.redirectUri;
+                          //encodeURIComponent(config.oauth.redirectUri);
 
-        // requestTokenUrl
-        var action = config.oauth.authorizationUrl;
+        console.log(requestBody);
 
-        // parameters
-        var parameters = [
-            ["client_id", config.oauth.consumerKey],
-            ["response_type", "code"],
-            ["scope", "r_profile"],
-            ["state", paramState]
-        ];
-
-        var message = {
-            method     : "GET",
-            action     : action,
-            parameters : parameters
-        };
-
-        // パラメータを含む URL の取得
-        var url = OAuth.addToURL(message.action, message.parameters);
-        location.href = url; // doesn't work
-
-        // TODO
-        // open authorize on iframe
-        // watch iframe load event and get code param when change url to http://some.url/?code=****
+        $.ajax({
+            type        : "POST",
+            data        : requestBody,
+            dataType    : "json",
+            url         : config.oauth.accessTokenUrl,
+            headers     : {
+                "Content-type" : "application/x-www-form-urlencoded;charset=utf-8"
+            },
+            success     : function(result, status) {
+                console.log(status);
+                console.log(result);
+            },
+            error       : function(xhr, status, error) {
+                console.log(xhr);
+                console.log(status);
+                console.log(error);
+            }
+        });
     };
 
-    authorize();
+    getAccessToken();
 })();
