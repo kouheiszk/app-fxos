@@ -1,36 +1,15 @@
-(function(){
-    /* global Config:false */
+Namespace('app')
+.use("brook promise")
+.use("fxos.net.api call")
+.apply(function(ns){
     'use strict';
 
-    var config = new Config();
-
-    var getAccessToken = function() {
-        var requestBody = "grant_type=authorization_code&client_id=" +
-                          config.oauth.consumerKey +
-                          "&client_secret=" +
-                          config.oauth.consumerSecret +
-                          "&code=" +
-                          config.oauth.code +
-                          "&redirect_uri=" +
-                          //config.oauth.redirectUri;
-                          encodeURIComponent(config.oauth.redirectUri);
-
-        // console.log(requestBody);
-
-        var xhr = new XMLHttpRequest({mozSystem: true});
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) { // DONE
-                if (xhr.status === 200) { // OK
-                    alert(xhr.responseText);
-                } else {
-                    alert("status = " + xhr.status);
-                }
-            }
-        };
-        xhr.open("POST", config.oauth.accessTokenUrl);
-        xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
-        xhr.send(requestBody);
+    var getFriends = function() {
+        ns.call("https://api.mixi-platform.com/2/people/@me/@friends")
+        .bind(ns.promise(function(next, value) {
+            console.log(value.entry[0].displayName);
+        })).run();
     };
 
-    getAccessToken();
-})();
+    getFriends();
+});
