@@ -1,8 +1,12 @@
 Namespace("fxos.auth.oauth")
 .use("brook promise")
 .use("fxos.core.config oauth")
+.use("fxos.system.storage save,get,remove,clear")
 .define(function(ns) {
     'use strict';
+
+    var FXOS_TOKENS_KEY = "storage.key.mixi.oauth.tokens";
+    var FXOS_CODE_KEY = "storage.key.mixi.oauth.code";
 
     /**
      * アクセストークンを含むオブジェクトを返すpromise
@@ -10,11 +14,18 @@ Namespace("fxos.auth.oauth")
     var getAccessTokenPromise = function() {
         return ns.promise(function(next) {
 
-            var savedTokens = false;
-            if(savedTokens) {
-                next(savedTokens);
-                return;
+            // tokenを呼び出し、存在する場合はそれを返す
+            var savedTokensText = ns.get(FXOS_TOKENS_KEY);
+            if (savedTokensText && savedTokensText !== "") {
+                var savedTokens = JSON.parse(savedTokensText);
+                if(savedTokens.access_token) {
+                    console.log(savedTokensText);
+                    next(savedTokens);
+                    return;
+                }
             }
+
+            var authorization_code = ns.get(FXOS_CODE_KEY) !== null ? ns.get(FXOS_CODE_KEY) : ns.oauth.code;
 
             // トークンがない場合は、アクセスする
             var requestBody = "grant_type=authorization_code&client_id=" +
@@ -22,7 +33,7 @@ Namespace("fxos.auth.oauth")
                             "&client_secret=" +
                             ns.oauth.consumerSecret +
                             "&code=" +
-                            ns.oauth.code +
+                            authorization_code +
                             "&redirect_uri=" +
                             encodeURIComponent(ns.oauth.redirectUri);
 
@@ -31,10 +42,18 @@ Namespace("fxos.auth.oauth")
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         console.log(xhr.responseText);
-                        var response = JSON.parse(xhr.responseText);
-                        next(response);
+                        // tokenを保存する　
+                        ns.save(FXOS_TOKENS_KEY, xhr.responseText);
+                        var tokens = JSON.parse(xhr.responseText);
+                        next(tokens);
                     } else {
                         console.log(xhr.status);
+                        // エラーなので、コード取得をリトライする
+                        var code = prompt('Please Enter Code', '');
+                        ns.save(FXOS_CODE_KEY, code);
+                        getAccessTokenPromise().bind(ns.promise(function(innerPromise, tokens) {
+                            next(tokens);
+                        })).run();
                     }
                 }
             };
