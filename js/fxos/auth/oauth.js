@@ -8,6 +8,49 @@ Namespace("fxos.auth.oauth")
     var FXOS_TOKENS_KEY = "storage.key.mixi.oauth.tokens";
     var FXOS_CODE_KEY = "storage.key.mixi.oauth.code";
 
+    var getCodeFromPrompt = function() {
+        var code = prompt('Please Enter Code', '');
+        console.log(code);
+        return code;
+    };
+
+    var getAccessTokenFromRefreshTokenPromise = function() {
+        return ns.promise(function(next) {
+            var requestBody = "grant_type=refresh_token&client_id=" +
+                            ns.oauth.consumerKey +
+                            "&client_secret=" +
+                            ns.oauth.consumerSecret +
+                            "&refresh_token=" +
+                              ns.oauth.refreshiToken;
+
+            var xhr = new XMLHttpRequest({mozSystem: true});
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log(xhr.responseText);
+                        // tokenを保存する　
+                        ns.save(FXOS_TOKENS_KEY, xhr.responseText);
+                        var tokens = JSON.parse(xhr.responseText);
+                        next(tokens);
+                    } else {
+                        console.log(xhr.status);
+                        // refresh_tokenを用いたOAuthのエラーなので、全工程リトライ
+                        ns.clear(FXOS_TOKENS_KEY);
+                        ns.remove(FXOS_CODE_KEY);
+                        var code = getCodeFromPrompt();
+                        ns.save(FXOS_CODE_KEY, code);
+                        getAccessTokenPromise().bind(ns.promise(function(innerPromise, tokens) {
+                            next(tokens);
+                        })).run();
+                    }
+                }
+            };
+            xhr.open("POST", ns.oauth.accessTokenUrl);
+            xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
+            xhr.send(requestBody);
+        });
+    };
+
     /**
      * アクセストークンを含むオブジェクトを返すpromise
      */
@@ -25,7 +68,7 @@ Namespace("fxos.auth.oauth")
                 }
             }
 
-            var authorization_code = ns.get(FXOS_CODE_KEY) !== null ? ns.get(FXOS_CODE_KEY) : ns.oauth.code;
+            var authorization_code = ns.get(FXOS_CODE_KEY) !== null ? ns.get(FXOS_CODE_KEY) : getCodeFromPrompt();
 
             // トークンがない場合は、アクセスする
             var requestBody = "grant_type=authorization_code&client_id=" +
@@ -49,7 +92,7 @@ Namespace("fxos.auth.oauth")
                     } else {
                         console.log(xhr.status);
                         // エラーなので、コード取得をリトライする
-                        var code = prompt('Please Enter Code', '');
+                        var code = getCodeFromPrompt();
                         ns.save(FXOS_CODE_KEY, code);
                         getAccessTokenPromise().bind(ns.promise(function(innerPromise, tokens) {
                             next(tokens);
@@ -67,7 +110,7 @@ Namespace("fxos.auth.oauth")
      * APIリクエストするpromise
      */
     var getApiRequestPromise = function(path) {
-        return ns.promise(function(next, value) {
+        return ns.promise(function(next, tokens) {
             var xhr = new XMLHttpRequest({mozSystem: true});
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
@@ -77,13 +120,18 @@ Namespace("fxos.auth.oauth")
                         next(response);
                     } else {
                         console.log(xhr.status);
-                        ns.clear();
+                        getAccessTokenFromRefreshTokenPromise().bind(
+                            getApiRequestPromise(path),
+                            ns.promise(function(innerPromise, response) {
+                                next(response);
+                            })
+                        ).run();
                     }
                 }
             };
             xhr.open("GET", path);
             xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Authorization", value.token_type + " " + value.access_token);
+            xhr.setRequestHeader("Authorization", tokens.token_type + " " + tokens.access_token);
             xhr.send();
         });
     };
