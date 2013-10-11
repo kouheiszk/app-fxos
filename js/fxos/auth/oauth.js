@@ -77,6 +77,7 @@ Namespace("fxos.auth.oauth")
                         next(response);
                     } else {
                         console.log(xhr.status);
+                        ns.clear();
                     }
                 }
             };
