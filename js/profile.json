@@ -1,0 +1,83 @@
+function getMyFriends(){
+return {
+  "entry" : [
+    {
+      "id" : "qgjw87yg3djw",
+      "displayName" : "bert",
+      "thumbnailUrl" : "http://img.mixi.net/img/basic/common/noimage_member180.gif",
+      "thumbnailDetails" : [
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890.jpg",
+          "width" : "180",
+          "height" : "180",
+          "size" : "l"
+        },
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890s.jpg",
+          "width" : "76",
+          "height" : "76",
+          "size" : "s"
+        },
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890m.jpg",
+          "width" : "40",
+          "height" : "40",
+          "size" : "m"
+        }
+      ],
+      "profileUrl" : "http://mixi.jp/show_friend.pl?uid=qgjw87yg3djw"
+    },
+    {
+      "id" : "qgjw87yg3djw",
+      "displayName" : "bert",
+      "thumbnailUrl" : "http://img.mixi.net/img/basic/common/noimage_member180.gif",
+      "thumbnailDetails" : [
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890.jpg",
+          "width" : "180",
+          "height" : "180",
+          "size" : "l"
+        },
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890s.jpg",
+          "width" : "76",
+          "height" : "76",
+          "size" : "s"
+        },
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890m.jpg",
+          "width" : "40",
+          "height" : "40",
+          "size" : "m"
+        }
+      ],
+      "profileUrl" : "http://mixi.jp/show_friend.pl?uid=qgjw87yg3djw"
+    },
+    {
+      "id" : "qgjw87yg3djw",
+      "displayName" : "bert",
+      "thumbnailUrl" : "http://img.mixi.net/img/basic/common/noimage_member180.gif",
+      "thumbnailDetails" : [
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890.jpg",
+          "width" : "180",
+          "height" : "180",
+          "size" : "l"
+        },
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890s.jpg",
+          "width" : "76",
+          "height" : "76",
+          "size" : "s"
+        },
+        {
+          "url" : "http://profile.img.mixi.jp/photo/member/67/89/123456789_1234567890m.jpg",
+          "width" : "40",
+          "height" : "40",
+          "size" : "m"
+        }
+      ],
+      "profileUrl" : "http://mixi.jp/show_friend.pl?uid=qgjw87yg3djw"
+    }
+  ]
+};
