@@ -1,19 +1,19 @@
 {
-    "name": "app for fxos",
-    "description": "app for fxos",
-    "launch_path": "/app.html",
-    "icons": {
-        "128": "/images/app_icon_128.png",
-        "60": "/images/app_icon_60.png"
-    },
-    "developer": {
-        "name": "kouheiszk, verus"
-    },
-    "default_locale": "ja",
-    "type": "privileged",
-    "permissions": {
-        "systemXHR": {
-            "description": "for OAuth"
-        }
+  "name": "app for fxos",
+  "description": "app for fxos",
+  "launch_path": "/app.html",
+  "icons": {
+    "60": "/images/app_icon_60.png",
+    "128": "/images/app_icon_128.png"
+  },
+  "developer": {
+    "name": "kouheiszk, verus"
+  },
+  "default_locale": "ja",
+  "type": "privileged",
+  "permissions": {
+    "systemXHR": {
+      "description": "for OAuth"
     }
+  }
 }

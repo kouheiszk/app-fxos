@@ -2,6 +2,10 @@ Namespace("fxos.core.config")
 .define(function(ns) {
     'use strict';
 
+    /**
+    * Get code from this URL
+    * https://mixi.jp/connect_authorize.pl?client_id=e001c6f009d9486d56fe&scope=r_profile
+    */
     ns.provide({
         oauth: {
             consumerKey     : "CONSUMER KEY",
