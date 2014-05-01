@@ -219,6 +219,12 @@
                 <nav>
                     <ul>
                         <li><a id="JS_friendList" href="#">友人一覧</a></li>
+                        <li><a id="JS_albumList" href="#">アルバム一覧</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <ul>
+                        <li><a id="JS_logout" href="#">ログアウト</a></li>
                     </ul>
                 </nav>
             </section>
@@ -231,13 +237,33 @@
                 </header>
                 <article class="content scrollable header">
                     <div data-type="list">
-                        <ul class="myFriends"></ul>
+                        <ul id="JS_listArea"></ul>
                     </div>
                 </article>
             </section> <!-- end drawer -->
+
         </section> <!-- end index -->
 
-        <script type="text/javascript" src="/js/lib/jquery/jquery-2.0.3.min.js"></script>
+        <section id="detail">
+            <section role="region">
+                <header>
+                    <a class="JS_back" href="#"><span class="icon icon-back">back</span></a>
+                    <menu type="toolbar"><button>done</button></menu>
+                    <h1>Title</h1>
+                </header>
+                <header>
+                    <h2>Subheader text</h2>
+                </header>
+                <article class="content scrollable header">
+                    <div data-type="list">
+                        <ul id="JS_commentArea"></ul>
+                    </div>
+                </article>
+            </section>
+        </section>
+            
+        <script type="text/javascript" src="/js/lib/jquery/jquery-2.1.0.min.js"></script>
+        <script type="text/javascript" src="/js/lib/underscore/underscore-min.js"></script>
         <script type="text/javascript" src="/js/lib/namespace/namespace.js"></script>
         <script type="text/javascript" src="/js/lib/brook/brook.min.js"></script>
         <script type="text/javascript" src="/js/fxos/core/config.js"></script>

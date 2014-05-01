@@ -1,7 +1,7 @@
 Namespace("fxos.auth.oauth")
 .use("brook promise")
 .use("fxos.core.config oauth")
-.use("fxos.system.storage save,get,remove,clear")
+.use("fxos.system.storage save,get,remove")
 .define(function(ns) {
     'use strict';
 
@@ -35,7 +35,7 @@ Namespace("fxos.auth.oauth")
                     } else {
                         console.log(xhr.status);
                         // refresh_tokenを用いたOAuthのエラーなので、全工程リトライ
-                        ns.clear(FXOS_TOKENS_KEY);
+                        ns.remove(FXOS_TOKENS_KEY);
                         ns.remove(FXOS_CODE_KEY);
                         var code = getCodeFromPrompt();
                         ns.save(FXOS_CODE_KEY, code);
@@ -107,7 +107,7 @@ Namespace("fxos.auth.oauth")
     };
 
     /**
-     * APIリクエストするpromise
+     * GET APIリクエストするpromise
      */
     var getApiRequestPromise = function(path) {
         return ns.promise(function(next, tokens) {
@@ -133,6 +133,36 @@ Namespace("fxos.auth.oauth")
             xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
             xhr.setRequestHeader("Authorization", tokens.token_type + " " + tokens.access_token);
             xhr.send();
+        });
+    };
+
+    /**
+     * POST APIリクエストするpromise
+     */
+    var getPOSTApiRequestPromise = function(path, data) {
+        return ns.promise(function(next, tokens) {
+            var xhr = new XMLHttpRequest({mozSystem: true});
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log(xhr.responseText);
+                        var response = JSON.parse(xhr.responseText);
+                        next(response);
+                    } else {
+                        console.log(xhr.status);
+                        getAccessTokenFromRefreshTokenPromise().bind(
+                            getApiRequestPromise(path),
+                            ns.promise(function(innerPromise, response) {
+                                next(response);
+                            })
+                        ).run();
+                    }
+                }
+            };
+            xhr.open("POST", path);
+            xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Authorization", tokens.token_type + " " + tokens.access_token);
+            xhr.send(JSON.stringify(data));
         });
     };
 
