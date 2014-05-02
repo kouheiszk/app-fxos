@@ -1,4 +1,5 @@
 Namespace("fxos.auth.oauth")
+.use("fxos.util.string encodeURIComponent")
 .use("fxos.core.config oauth")
 .use("fxos.system.storage save,get,remove")
 .define(function(ns) {
@@ -82,7 +83,7 @@ Namespace("fxos.auth.oauth")
                           "&client_id=" + ns.oauth.consumerKey +
                           "&client_secret=" + ns.oauth.consumerSecret +
                           "&code=" + authorization_code +
-                          "&redirect_uri=" + encodeURIComponent(ns.oauth.redirectUri);
+                          "&redirect_uri=" + ns.encodeURIComponent(ns.oauth.redirectUri);
 
         var dfd = $.Deferred();
 
