@@ -13,6 +13,12 @@ Namespace("fxos.auth.oauth")
         return dfd.promise();
     };
 
+    var wrapErrorPromise = function(value) {
+        var dfd = $.Deferred();
+        dfd.fail(value);
+        return dfd.promise();
+    };
+
     var getAuthorizationCodeFromPrompt = function() {
         var code = prompt('Please Enter Code', '');
         console.log(code);
@@ -20,16 +26,13 @@ Namespace("fxos.auth.oauth")
     };
 
     var accessTokenFromRefreshTokenPromise = function() {
-        var requestBody = "grant_type=refresh_token&client_id=" +
-                          ns.oauth.consumerKey +
-                          "&client_secret=" +
-                          ns.oauth.consumerSecret +
-                          "&refresh_token=" +
-                          ns.oauth.refreshiToken;
-
+        var requestBody = "grant_type=refresh_token" +
+                          "&client_id=" + ns.oauth.consumerKey +
+                          "&client_secret=" + ns.oauth.consumerSecret +
+                          "&refresh_token=" + ns.oauth.refreshiToken;
 
         var dfd = $.Deferred();
-        var xhr = new XMLHttpRequest({mozSystem: true});
+        var xhr = new XMLHttpRequest({ mozSystem : true });
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
@@ -39,7 +42,7 @@ Namespace("fxos.auth.oauth")
                     var tokens = JSON.parse(xhr.responseText);
                     dfd.resolve(tokens);
                 } else {
-                    console.log(xhr.status);
+                    console.log(xhr);
                     // refresh_tokenを用いたOAuthのエラーなので、全工程リトライ
                     ns.remove(FXOS_TOKENS_KEY);
                     ns.remove(FXOS_CODE_KEY);
@@ -52,7 +55,7 @@ Namespace("fxos.auth.oauth")
             }
         };
         xhr.open("POST", ns.oauth.accessTokenUrl);
-        xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
+        xhr.setRequestHeader('Content-Type' , 'application/x-www-form-urlencoded');
         xhr.send(requestBody);
 
         return dfd.promise();
@@ -75,14 +78,11 @@ Namespace("fxos.auth.oauth")
         var authorization_code = ns.get(FXOS_CODE_KEY) !== null ? ns.get(FXOS_CODE_KEY) : getAuthorizationCodeFromPrompt();
 
         // トークンがない場合は、アクセスする
-        var requestBody = "grant_type=authorization_code&client_id=" +
-                          ns.oauth.consumerKey +
-                          "&client_secret=" +
-                          ns.oauth.consumerSecret +
-                          "&code=" +
-                          authorization_code +
-                          "&redirect_uri=" +
-                          encodeURIComponent(ns.oauth.redirectUri);
+        var requestBody = "grant_type=authorization_code" +
+                          "&client_id=" + ns.oauth.consumerKey +
+                          "&client_secret=" + ns.oauth.consumerSecret +
+                          "&code=" + authorization_code +
+                          "&redirect_uri=" + encodeURIComponent(ns.oauth.redirectUri);
 
         var dfd = $.Deferred();
 
@@ -96,7 +96,7 @@ Namespace("fxos.auth.oauth")
                     var tokens = JSON.parse(xhr.responseText);
                     dfd.resolve(tokens);
                 } else {
-                    console.log(xhr.status);
+                    console.log(xhr);
                     // エラーなので、コード取得をリトライする
                     var code = getAuthorizationCodeFromPrompt();
                     ns.save(FXOS_CODE_KEY, code);
@@ -107,7 +107,7 @@ Namespace("fxos.auth.oauth")
             }
         };
         xhr.open("POST", ns.oauth.accessTokenUrl);
-        xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
+        xhr.setRequestHeader('Content-Type' , 'application/x-www-form-urlencoded');
         xhr.send(requestBody);
 
         return dfd.promise();
@@ -116,13 +116,12 @@ Namespace("fxos.auth.oauth")
     /**
      * APIリクエストするpromise
      */
-    var apiRequest = function(method, url) {
-        method = method || 'GET';
-
-        console.log(method + ' ' + url);
+    var apiRequest = function(method, url, data, contentType) {
+        if (method === '' || url === '') return wrapErrorPromise('undefined method or url.');
+        if (data !== '') console.log(data);
+        contentType = contentType || 'application/x-www-form-urlencoded';
 
         return accessTokenPromise().then(function(tokens) {
-
             var dfd = $.Deferred();
             var xhr = new XMLHttpRequest({mozSystem: true});
             xhr.onreadystatechange = function() {
@@ -132,19 +131,23 @@ Namespace("fxos.auth.oauth")
                         var response = JSON.parse(xhr.responseText);
                         dfd.resolve(response);
                     } else {
-                        console.log(xhr.status);
-                        accessTokenFromRefreshTokenPromise().then(function(tokens) {
-                            return apiRequest(method, url);
-                        }).then(function(response) {
-                            wrapPromise(response);
-                        });
+                        if (xhr.status == '401') {
+                            // Authorization Required
+                            accessTokenFromRefreshTokenPromise().then(function(tokens) {
+                                return apiRequest(method, url);
+                            }).then(function(response) {
+                                dfd.resolve(response);
+                            });
+                        } else {
+                            console.log(xhr);
+                        }
                     }
                 }
             };
-            xhr.open("GET", url);
-            xhr.setRequestHeader("Content-Type" , "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("Authorization", tokens.token_type + " " + tokens.access_token);
-            xhr.send();
+            xhr.open(method, url);
+            xhr.setRequestHeader('Content-Type', contentType);
+            xhr.setRequestHeader('Authorization', tokens.token_type + ' ' + tokens.access_token);
+            xhr.send(data);
 
             return dfd.promise();
         });

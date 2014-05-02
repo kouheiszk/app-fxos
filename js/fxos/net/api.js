@@ -3,6 +3,10 @@ Namespace("fxos.net.api")
 .define(function(ns) {
     'use strict';
 
+    var fixedEncodeURIComponent = function(value) {
+        return encodeURIComponent(value).replace(/[!'()]/g, escape).replace(/\*/g, "%2A");
+    };
+
     /**
      * call api
      *
@@ -12,8 +16,17 @@ Namespace("fxos.net.api")
         return ns.apiRequest('GET', path);
     };
 
+    var post = function(path, data) {
+        var encodedData = _.map(data, function(value, key, list) {
+            return fixedEncodeURIComponent(key) + '=' + fixedEncodeURIComponent(value)
+        }).join('&');
+        console.log(encodedData);
+        return ns.apiRequest('POST', path, encodedData);
+    };
+
     ns.provide({
-        call: call
+        call: call,
+        post: post
     });
 });
 

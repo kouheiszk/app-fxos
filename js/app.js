@@ -1,5 +1,5 @@
 Namespace('app')
-.use("fxos.net.api call")
+.use("fxos.net.api call,post")
 .use("fxos.system.storage clear")
 .apply(function(ns) {
     'use strict';
@@ -90,7 +90,11 @@ Namespace('app')
         console.log(photoId);
 
         // comment
-
+        var data = { text : '蓮根の葉っぱを一定回数叩いて食べる動物ʕ•ᴥ•ʔ' };
+        ns.post("https://api.mixi-platform.com/2/photo/comments/mediaItems/@me/@self/" + albumId + "/" + photoId, data)
+        .then(function(response) {
+            console.log(response);
+        });
     };
 
     // Friend
