@@ -1,8 +1,7 @@
 Namespace('app')
-.use("brook promise")
 .use("fxos.net.api call")
 .use("fxos.system.storage clear")
-.apply(function(ns){
+.apply(function(ns) {
     'use strict';
 
     var $index = $("#index");
@@ -16,7 +15,7 @@ Namespace('app')
     var getFriends = function() {
         clearList();
         ns.call("https://api.mixi-platform.com/2/people/@me/@friends")
-        .bind(ns.promise(function(next, value) {
+        .then(function(value) {
             for(var i = 0; i < value.entry.length; i++){
                 var data = value.entry[i];
                 var $item = $('<li class="friend"></li>');
@@ -26,13 +25,13 @@ Namespace('app')
                 $item.append($title);
                 $listArea.append($item);
             }
-        })).run();
+        });
     };
 
     var getAlbums = function() {
         clearList();
         ns.call("https://api.mixi-platform.com/2/photo/albums/@me/@self/")
-        .bind(ns.promise(function(next, value) {
+        .then(function(value) {
             for(var i = 0; i < value.entry.length; i++){
                 var data = value.entry[i];
                 var $item = $('<li class="album"></li>').attr({
@@ -51,14 +50,14 @@ Namespace('app')
                     getAlbumPhotos(albumId);
                 });
             }
-        })).run();
+        });
     };
 
     var getAlbumPhotos = function(albumId) {
         if (!albumId) return;
         clearList();
         ns.call("https://api.mixi-platform.com/2/photo/mediaItems/@me/@self/" + albumId + "/")
-        .bind(ns.promise(function(next, value) {
+        .then(function(value) {
             for(var i = 0; i < value.entry.length; i++){
                 var data = value.entry[i];
                 console.log(data);
@@ -80,7 +79,7 @@ Namespace('app')
                     getPhotoDetail(albumId, photoId);
                 });
             }
-        })).run();
+        });
     };
 
     var getPhotoDetail = function(albumId, photoId) {

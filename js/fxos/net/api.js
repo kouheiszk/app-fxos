@@ -1,6 +1,5 @@
 Namespace("fxos.net.api")
-.use("brook promise")
-.use("fxos.auth.oauth getAccessTokenPromise,getApiRequestPromise")
+.use("fxos.auth.oauth apiRequest")
 .define(function(ns) {
     'use strict';
 
@@ -10,8 +9,7 @@ Namespace("fxos.net.api")
      * @param path {string} https://api.mixi-platform.com/2/people/@me/@self
      */
     var call = function(path) {
-        return ns.getAccessTokenPromise()
-            .bind(ns.getApiRequestPromise(path));
+        return ns.apiRequest('GET', path);
     };
 
     ns.provide({
