@@ -9,16 +9,21 @@ Namespace("fxos.net.api")
      *
      * @param path {string} https://api.mixi-platform.com/2/people/@me/@self
      */
-    var call = function(path) {
-        return ns.apiRequest('GET', path);
+    var call = function(url) {
+        return ns.apiRequest('GET', url);
     };
 
-    var post = function(path, data) {
+    var post = function(url, data) {
         var encodedData = _.map(data, function(value, key, list) {
             return ns.encodeURIComponent(key) + '=' + ns.encodeURIComponent(value)
         }).join('&');
         console.log(encodedData);
-        return ns.apiRequest('POST', path, encodedData);
+        return ns.apiRequest('POST', url, encodedData);
+    };
+
+    var postJson = function(url, data) {
+        var jsonData = JSON.stringify(data);
+        return ns.apiRequest('POST', url, jsonData, 'application/json');
     };
 
     ns.provide({
